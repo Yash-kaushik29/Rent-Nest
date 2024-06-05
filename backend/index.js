@@ -4,12 +4,15 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 const colors = require("colors");
+const jwt = require("jsonwebtoken");
 const User = require("./models/User");
+const cookieParser = require("cookie-parser");
 const saltRounds = 10;
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 mongoose
@@ -27,39 +30,58 @@ app.use(
   cors({
     credentials: true,
     origin: process.env.FRONTEND_URL,
+    methods: ["POST"],
   })
 );
 
 const salt = bcrypt.genSaltSync(saltRounds);
 
 app.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
-
   try {
-    const data = await User.create({
-      username,
-      email,
-      password: bcrypt.hashSync(password, salt),
-    }).then(() => {
-      res.status(200).json("User stored in DB");
-    });
-  } catch (err) {
-    console.log(err);
+    const { username, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email Already Exists!" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+
+    res
+      .status(201)
+      .json({ success: true, message: "Account Created Successfully" });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Please Enter a Valid Email" });
   }
 });
 
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = req.body;
     const user = await User.findOne({ email: email });
 
-    const result = bcrypt.compareSync(password, user.password);
-    if (result) {
-      res.status(200).json("Successfully Logged In!");
+    if (user) {
+      const match = await bcrypt.compare(password, user.password);
+      if (match) {
+        var token = jwt.sign({ email: user.email, userID: user._id }, process.env.JWT_SECRET_KEY, {expiresIn: '7d'});
+        res.cookie("token", token).json({ success: true, message: "Logged In Successfully!", user});
+      } else {
+        res.status(400).json({ success: false, message: "Invalid Credentials!" });
+      }
+    } else {
+      res.status(400).json({ success: false, message: "Account Does Not Exist!" });
     }
-  } catch(err) {
-    console.log(err);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
 
