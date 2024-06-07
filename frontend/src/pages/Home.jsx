@@ -1,10 +1,9 @@
 import React from 'react'
-import Header from '../components/Header'
 
 const Home = () => {
   return (
     <>
-    <Header />
+    <div className='text-6xl text-orange-500 font-bold flex justify-center mt-20 animate-pulse'>Stay Tuned!!!</div>
     </>
   )
 }

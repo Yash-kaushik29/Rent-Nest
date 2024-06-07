@@ -71,13 +71,23 @@ app.post("/login", async (req, res) => {
     if (user) {
       const match = await bcrypt.compare(password, user.password);
       if (match) {
-        var token = jwt.sign({ email: user.email, userID: user._id }, process.env.JWT_SECRET_KEY, {expiresIn: '7d'});
-        res.cookie("token", token).json({ success: true, message: "Logged In Successfully!", user});
+        var token = jwt.sign(
+          { email: user.email, userID: user._id, username: user.username },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: "7d" }
+        );
+        res
+          .cookie("token", token)
+          .json({ success: true, message: "Logged In Successfully!", user });
       } else {
-        res.status(400).json({ success: false, message: "Invalid Credentials!" });
+        res
+          .status(400)
+          .json({ success: false, message: "Invalid Credentials!" });
       }
     } else {
-      res.status(400).json({ success: false, message: "Account Does Not Exist!" });
+      res
+        .status(400)
+        .json({ success: false, message: "Account Does Not Exist!" });
     }
   } catch (error) {
     console.error(error);
@@ -85,6 +95,27 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.get("/getUser", async (req, res) => {
+  const { token } = req.cookies;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async(err, user) => {
+      if (err) {
+        throw err;
+      } else {
+        const {username, email, _id} = await User.findOne({_id: user.userID})
+        res.json({username, email, _id});
+      }
+    });
+  } else {
+    res.json(null);
+  }
+});
+
+app.post("/logout", async(req, res) => {
+  res.cookie("token", "").json({});
+})
+
 app.listen(process.env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`.yellow);
+  console.log(`Server running on port ${process.env.PORT}`.white);
 });

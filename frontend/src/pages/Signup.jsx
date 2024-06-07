@@ -1,15 +1,24 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { enqueueSnackbar } from "notistack";
+import { UserContext } from "../../context/userContext";
 
 const Signup = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const {user} = useContext(UserContext);
+
+  useEffect(() => {
+    if(user) {
+      navigate("/");
+    }
+  });
 
   const handleSignup = async (e) => {
+    
     e.preventDefault();
     try {
       const res = await axios.post(
