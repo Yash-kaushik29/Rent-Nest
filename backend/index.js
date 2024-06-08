@@ -7,6 +7,8 @@ const colors = require("colors");
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const cookieParser = require("cookie-parser");
+const download = require('image-downloader');
+const multer = require('multer');
 const saltRounds = 10;
 dotenv.config();
 
@@ -14,6 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(__dirname + '/uploads'));
 
 mongoose
   .connect(process.env.MONGODB_URI_KEY, {
@@ -114,6 +117,18 @@ app.get("/getUser", async (req, res) => {
 
 app.post("/logout", async(req, res) => {
   res.cookie("token", "").json({});
+})
+
+app.post("/save-image", async(req, res) => {
+  const {url} = req.body;
+  const newName = "image" + Date.now() + ".jpg";
+
+  await download.image({
+    url: url, 
+    dest: __dirname + '/uploads/' + newName,
+  });
+
+  res.json(newName)
 })
 
 app.listen(process.env.PORT, () => {

@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound";
 import { UserContextProvider } from "../context/userContext";
 import AccountDetails from "./pages/AccountDetails";
 import Header from "./components/Header";
+import Accomodation from "./pages/Accomodation";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />}></Route>
         <Route path="*" element={<NotFound />}></Route>
         <Route path="/account/:subCategory?" element={<AccountDetails />}></Route>
+        <Route path="/account/:subCategory/:action?" element={<AccountDetails />}></Route>
       </Routes>
     </UserContextProvider>
   );
