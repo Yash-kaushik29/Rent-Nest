@@ -9,6 +9,7 @@ const User = require("./models/User");
 const cookieParser = require("cookie-parser");
 const download = require('image-downloader');
 const multer = require('multer');
+const fs = require('fs');
 const saltRounds = 10;
 dotenv.config();
 
@@ -130,6 +131,26 @@ app.post("/save-image", async(req, res) => {
 
   res.json(newName)
 })
+
+const photosMiddleware = multer({ dest: "uploads/" });
+
+app.post("/upload", photosMiddleware.array('photos', 50), (req, res) => {
+  const uploadedFiles = [];
+  const files = req.files;
+
+  for(let i=0; i<files.length; i++) {
+    const {path, originalname} = files[i];
+    const parts = originalname.split('.');
+    const ext = parts[parts.length-1];
+
+    const newPath = path + '.' + ext;
+    fs.renameSync(path, newPath);
+    uploadedFiles.push(newPath.replace("uploads\\", ''));
+    console.log(files[i])
+  }
+
+  res.json(uploadedFiles);
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`.white);
