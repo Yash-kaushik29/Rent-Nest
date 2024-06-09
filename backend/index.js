@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const colors = require("colors");
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
+const Accomodation = require("./models/Accomodation")
 const cookieParser = require("cookie-parser");
 const download = require('image-downloader');
 const multer = require('multer');
@@ -99,7 +100,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/getUser", async (req, res) => {
+app.get("/getUser", (req, res) => {
   const { token } = req.cookies;
 
   if (token) {
@@ -146,10 +147,29 @@ app.post("/upload", photosMiddleware.array('photos', 50), (req, res) => {
     const newPath = path + '.' + ext;
     fs.renameSync(path, newPath);
     uploadedFiles.push(newPath.replace("uploads\\", ''));
-    console.log(files[i])
   }
 
   res.json(uploadedFiles);
+});
+
+app.post("/savePlace", (req, res) => {
+  const { token } = req.cookies;
+  const {title, address, description, images, perks, extraInfo, checkIn, checkOut, price, maxGuests} = req.body.placeData;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async(err, user) => {
+      if (err) {
+        throw err;
+      } else {
+        const newAccomodation = new Accomodation({
+          owner: user.userID,
+          title, address, description, images, perks, extraInfo, checkIn, checkOut, price, maxGuests
+        })
+        newAccomodation.save();
+        res.json(newAccomodation);
+      }
+    });
+  }  
 });
 
 app.listen(process.env.PORT, () => {
