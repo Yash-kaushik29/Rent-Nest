@@ -61,7 +61,7 @@ const AccountDetails = () => {
           <Loader />
         </div>
       ) : (
-        <>
+        <div>
           <div className="flex flex-col sm:flex-row mt-5 sm:mt-12 max-w-xl justify-between items-center mx-auto">
             <Link to={"/account"}>
               <div className={addClasses("profile")}>
@@ -122,13 +122,15 @@ const AccountDetails = () => {
             </Link>
           </div>
 
+          <div className="max-w-md sm:max-w-xl md:max-w-2xl bg-orange-500 h-[1px] mt-8 mx-auto"></div>
+
           <div>
             {subCategory === "profile" && (
               <UserDetails user={user} logout={logout} />
             )}
             {subCategory === "accomodations" && <Accomodation />}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

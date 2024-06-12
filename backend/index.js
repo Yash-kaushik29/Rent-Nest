@@ -172,6 +172,27 @@ app.post("/savePlace", (req, res) => {
   }  
 });
 
+app.get("/getAccomodations", (req, res) => {
+  const { token } = req.cookies;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async (err, user) => {
+      if (err) {
+        res.status(401).json({error: 'Token verification failed'});
+      } else {
+        try {
+          const accommodations = await Accomodation.find({ owner: user.userID });
+          res.json(accommodations);
+        } catch (error) {
+          res.status(500).json({error: 'Error retrieving accommodations'});
+        }
+      }
+    });
+  } else {
+    res.status(401).json({error: 'No token provided'});
+  }
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`.white);
 });

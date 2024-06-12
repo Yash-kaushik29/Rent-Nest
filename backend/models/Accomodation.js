@@ -7,7 +7,7 @@ const accomodationSchema = new mongoose.Schema(
     address: { type: String, required: true },
     description: { type: String, required: true },
     images: [String],
-    features: { type: String },
+    perks: { type: [String] },
     extraInfo: { type: String },
     price: { type: String, required: true },
     checkIn: { type: String, required: true },

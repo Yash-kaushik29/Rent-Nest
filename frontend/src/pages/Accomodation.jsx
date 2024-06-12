@@ -1,11 +1,13 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Perks from "../components/Perks";
 import PhotosUploader from "../components/PhotosUploader";
+import UserAccomodations from "../components/UserAccomodations";
 
 const Accomodation = () => {
   const { action } = useParams();
+  const [accomodations, setAccomodations] = useState([]);
   const [title, setTitle] = useState("");
   const [address, setAddress] = useState("");
   const [description, setDescription] = useState("");
@@ -16,25 +18,35 @@ const Accomodation = () => {
   const [checkOut, setCheckOut] = useState("");
   const [price, setPrice] = useState("");
   const [maxGuests, setMaxGuests] = useState("");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchAccomodations = async() => {
+        const {data} = await axios.get("http://localhost:5000/getAccomodations", {withCredentials: true});
+        setAccomodations(data);
+    }
+
+    fetchAccomodations();
+  }, []);
+  
 
   const handleSubmit = async(e) => {
     e.preventDefault();
 
     const placeData = {title, address, description, images, perks, extraInfo, checkIn, checkOut, price, maxGuests};
-    const {data} = await axios.post("http://localhost:5000/savePlace", {placeData}, {withCredentials: true});
+    await axios.post("http://localhost:5000/savePlace", {placeData}, {withCredentials: true});
 
-    console.log(data)
     navigate("/account/accomodations");
   };
 
   return (
     <div>
       {action !== "new" ? (
+        <>
         <div className="text-center">
           <Link
             to={"/account/accomodations/new"}
-            className="inline-flex gap-2 items-center mt-12 bg-orange-500 text-white font-semibold text-lg px-10 py-2 rounded-xl"
+            className="inline-flex gap-2 items-center mt-12 bg-orange-500 text-white font-semibold text-lg px-3 sm:px-10 py-2 rounded-xl"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -53,6 +65,13 @@ const Accomodation = () => {
             Add new accomodation
           </Link>
         </div>
+        
+        <div className="mt-8">
+          {accomodations.length > 0 && accomodations.map((accomodation) => (
+            <UserAccomodations key={accomodation._id} accomodation={accomodation} />
+          ))}
+        </div>
+        </>
       ) : (
         <div className="mx-2 sm:px-5 md:mx-10 mt-6">
           <div className="max-w-3xl mx-auto p-5">
@@ -152,7 +171,7 @@ const Accomodation = () => {
                     Price
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     name="price"
                     placeholder="$50 per night"
                     value={price}
@@ -166,7 +185,7 @@ const Accomodation = () => {
                     Maximum Guests
                   </label>
                   <input
-                    type="number"
+                    type="string"
                     name="maxGuests"
                     placeholder="1"
                     value={maxGuests}
