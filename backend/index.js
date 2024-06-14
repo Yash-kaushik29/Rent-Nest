@@ -35,7 +35,7 @@ app.use(
   cors({
     credentials: true,
     origin: process.env.FRONTEND_URL,
-    methods: ["POST"],
+    methods: ["POST", "PUT", "GET"],
   })
 );
 
@@ -172,6 +172,39 @@ app.post("/savePlace", (req, res) => {
   }  
 });
 
+app.put("/updatePlace", (req, res) => {
+  const { token } = req.cookies;
+  const {id, title, address, description, images, perks, extraInfo, checkIn, checkOut, price, maxGuests} = req.body.placeData;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async(err, user) => {
+      if (err) {
+        throw err;
+      } else {
+        const updatedAccomodation = await Accomodation.findOneAndUpdate(
+          { _id: id }, // Find the accommodation by id
+          {
+            owner: user.userID,
+            title, 
+            address, 
+            description, 
+            images, 
+            perks, 
+            extraInfo, 
+            checkIn, 
+            checkOut, 
+            price, 
+            maxGuests
+          },
+          { new: true, upsert: true } // Create if it doesn't exist, return the updated document
+        );
+
+        res.json(updatedAccomodation)
+      }
+    });
+  }  
+});
+
 app.get("/getAccomodations", (req, res) => {
   const { token } = req.cookies;
 
@@ -191,6 +224,13 @@ app.get("/getAccomodations", (req, res) => {
   } else {
     res.status(401).json({error: 'No token provided'});
   }
+});
+
+app.get("/getAccomodation/:id", async(req, res) => {
+  const {id} = req.params;
+
+  const accomodation = await Accomodation.findOne({_id: id});
+  res.json(accomodation);
 });
 
 app.listen(process.env.PORT, () => {

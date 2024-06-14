@@ -101,8 +101,8 @@ const AccountDetails = () => {
                 Bookings
               </div>
             </Link>
-            <Link to={"/account/accomodations"}>
-              <div className={addClasses("accomodations")}>
+            <Link to={"/account/my-accomodations"}>
+              <div className={addClasses("my-accomodations")}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -128,7 +128,7 @@ const AccountDetails = () => {
             {subCategory === "profile" && (
               <UserDetails user={user} logout={logout} />
             )}
-            {subCategory === "accomodations" && <Accomodation />}
+            {subCategory === "my-accomodations" && <Accomodation />}
           </div>
         </div>
       )}

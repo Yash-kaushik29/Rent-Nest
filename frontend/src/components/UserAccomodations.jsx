@@ -41,7 +41,7 @@ const UserAccomodations = ({accomodation}) => {
     <div className='font-semibold text-lg'>
       <span className='text-orange-500 font-bold text-xl'>${accomodation.price}</span> per night
     </div>
-    <Link to={`/my-accomodation/${accomodation._id}`} className='absolute right-0 mr-10'>
+    <Link to={`/account/my-accomodations/${accomodation._id}`} className='absolute right-0 mr-10'>
     <div className='flex items-center gap-1 my-2 font-semibold text-lg bg-orange-500 hover:bg-orange-400 text-white px-4 py-1 rounded-full w-fit'>
       <MdModeEdit />
       Edit

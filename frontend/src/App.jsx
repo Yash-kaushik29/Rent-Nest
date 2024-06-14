@@ -8,6 +8,7 @@ import { UserContextProvider } from "../context/userContext";
 import AccountDetails from "./pages/AccountDetails";
 import Header from "./components/Header";
 import Accomodation from "./pages/Accomodation";
+import Form from "./components/Form";
 
 const App = () => {
   return (
@@ -19,7 +20,8 @@ const App = () => {
         <Route path="/signup" element={<Signup />}></Route>
         <Route path="*" element={<NotFound />}></Route>
         <Route path="/account/:subCategory?" element={<AccountDetails />}></Route>
-        <Route path="/account/:subCategory/:action?" element={<AccountDetails />}></Route>
+        <Route path="/account/my-accomodations/new" element={<Form />}></Route>
+        <Route path="/account/my-accomodations/:id" element={<Form />} ></Route>
       </Routes>
     </UserContextProvider>
   );
