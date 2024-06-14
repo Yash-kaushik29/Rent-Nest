@@ -1,36 +1,62 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { MdOutlineDelete } from "react-icons/md";
+import { IoStar, IoStarOutline } from "react-icons/io5";
 
-const PhotosUploader = ({images, setImages}) => {
-    const [imageURL, setImageURL] = useState("");
+const PhotosUploader = ({ images, setImages }) => {
+  const [imageURL, setImageURL] = useState("");
 
-    const addImageByUrl = async(e) => {
-        e.preventDefault();
-    
-        const {data: filename} = await axios.post("http://localhost:5000/save-image", {url: imageURL}, {withCredentials: true});
-        setImages((prev) => {
-            return [...prev, filename];
-        });
-        setImageURL("");
+  const addImageByUrl = async (e) => {
+    e.preventDefault();
+
+    const { data: filename } = await axios.post(
+      "http://localhost:5000/save-image",
+      { url: imageURL },
+      { withCredentials: true }
+    );
+    setImages((prev) => {
+      return [...prev, filename];
+    });
+    setImageURL("");
+  };
+
+  const handleUpload = async (e) => {
+    const files = e.target.files;
+    const filedata = new FormData();
+
+    for (let i = 0; i < files.length; i++) {
+      filedata.append("photos", files[i]);
+    }
+
+    const { data: filenames } = await axios.post(
+      "http://localhost:5000/upload",
+      filedata,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
       }
-    
-      const handleUpload = async(e) => {
-        const files = e.target.files;
-        const filedata = new FormData();
-    
-        for(let i=0; i<files.length; i++) {
-            filedata.append("photos", files[i]);
-        }
-    
-        const {data: filenames} = await axios.post("http://localhost:5000/upload", filedata, {
-            headers: {'Content-Type': 'multipart/form-data'}
-        });
-        
-        setImages((prev) => {
-            return [...prev, ...filenames]
-        })
-      }
-      
+    );
+
+    setImages((prev) => {
+      return [...prev, ...filenames];
+    });
+  };
+
+  const deleteImage = (imageToBeDeleted) => {
+    const newImages = images.filter(image => {
+      return image != imageToBeDeleted;
+    })
+
+    setImages(newImages)
+  }
+
+  const setCoverPhoto = (coverPhoto) => {
+    const newImages = images.filter(image => {
+      return image != coverPhoto;
+    })
+
+    setImages([coverPhoto, ...newImages]);
+  }
+
   return (
     <>
       <div>
@@ -56,7 +82,13 @@ const PhotosUploader = ({images, setImages}) => {
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {images.length > 0 &&
             images.map((image) => (
-              <div key={image} className="mt-4 rounded-xl">
+              <div key={image} className="mt-4 rounded-xl flex relative">
+                <div className="cursor-pointer absolute right-2 bottom-1 text-2xl text-white" onClick={() => deleteImage(image)}><MdOutlineDelete /></div>
+                <div className="cursor-pointer absolute left-2 bottom-2 text-xl text-white" onClick={() => setCoverPhoto(image)}>
+                  {image === images[0] ? 
+                  <IoStar />:
+                  <IoStarOutline /> }
+                </div>
                 <img
                   src={"http://localhost:5000/uploads/" + image}
                   alt="Uploaded"
