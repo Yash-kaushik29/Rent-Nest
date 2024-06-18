@@ -233,6 +233,26 @@ app.get("/getAccomodation/:id", async(req, res) => {
   res.json(accomodation);
 });
 
+app.get("/getPlaces", async(req, res) => {
+  try {
+    const data = await Accomodation.find();
+  res.json(data);
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+app.get("/getPlace/:id", async(req, res) => {
+  const {id} = req.params;
+
+  try {
+    const data = await Accomodation.findOne({_id: id});
+    res.json(data);
+  } catch(error) {
+    console.log(error);
+  }
+})
+
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`.white);
 });
