@@ -253,6 +253,26 @@ app.get("/getPlace/:id", async(req, res) => {
   }
 })
 
+app.post("/booking", async(req, res) => {
+  const { token } = req.cookies;
+  const {placeId, checkIn, checkOut, maxGuests, price, email, phone} = req.body.bookingData;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async(err, user) => {
+      if (err) {
+        throw err;
+      } else {
+        const newBooking = new Booking({
+          guest: user.userID, email: user.email,
+          placeId, checkIn, checkOut, maxGuests, price, phone
+        })
+        newBooking.save();
+        res.json(newBooking);
+      }
+    });
+  }  
+})
+
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`.white);
 });
