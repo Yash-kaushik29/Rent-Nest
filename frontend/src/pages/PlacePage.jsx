@@ -1,7 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PlaceGallery from "../components/PlaceGallery";
+import {differenceInCalendarDays} from "date-fns";
+import { enqueueSnackbar } from "notistack";
 
 const PlacePage = () => {
   const [placeData, setPlaceData] = useState([]);
@@ -12,6 +14,7 @@ const PlacePage = () => {
   const [checkOut, setCheckOut] = useState("");
   const [maxGuests, setMaxGuests] = useState("");
   const [phone, setPhone] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPlace = async () => {
@@ -20,10 +23,40 @@ const PlacePage = () => {
     };
 
     fetchPlace();
-  }, [id]);
+  }, []);
 
-  const handleBooking = () => {
+  const handleBooking = async() => {
+    const currDate = new Date();
+  
+  if (!checkIn || !checkOut || !phone || !maxGuests) {
+    enqueueSnackbar("Please fill all the details", {
+      autoHideDuration: 3000,
+      variant: "error",
+    });
+    return;  // Exit the function if validation fails
+  }
+
+  const checkInDate = new Date(checkIn);
+  const checkOutDate = new Date(checkOut);
+
+  if (currDate > checkInDate || currDate > checkOutDate || checkInDate >= checkOutDate) {
+    enqueueSnackbar("Please select valid dates", {
+      autoHideDuration: 3000,
+      variant: "error",
+    });
+    return;  // Exit the function if validation fails
+  }
     
+    const days = differenceInCalendarDays(checkOutDate, checkInDate);
+    const price = days * placeData.price;
+    const bookingData = {placeId: id, checkInDate, checkOutDate, maxGuests, price, phone};
+
+    await axios.post("http://localhost:5000/booking", {bookingData: bookingData}, {withCredentials: true});
+    enqueueSnackbar("Booking Successfull", {
+      autoHideDuration: 3000,
+      variant: "success", 
+    });
+    navigate("/account/bookings")
   }
 
   if(showImages) {
@@ -92,8 +125,8 @@ const PlacePage = () => {
         <div className="px-2 mt-4">
           <input type="text" placeholder="Contact No" className="mt-1 px-3 border w-full rounded-lg" onChange={(e) => setPhone(e.target.value)} />
         </div>
-        <div className="px-10">
-        <button className="mt-4 bg-orange-500 text-white font-bold px-4 py-2 w-full rounded-full" onClick={() => handleBooking}>Book Now</button>
+        <div className="px-10" onClick={(e) => handleBooking(e)}>
+        <button className="mt-4 bg-orange-500 text-white font-bold px-4 py-2 w-full rounded-full">Book Now</button>
         </div>
       </div>
       </div>

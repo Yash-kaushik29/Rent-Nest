@@ -12,6 +12,7 @@
   "dependencies": {
     "@material-tailwind/react": "^2.1.9",
     "axios": "^1.7.2",
+    "date-fns": "^3.6.0",
     "google-map-react": "^2.2.1",
     "notistack": "^3.0.1",
     "prop-types": "^15.8.1",

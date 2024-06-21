@@ -12,6 +12,7 @@ const download = require('image-downloader');
 const multer = require('multer');
 const fs = require('fs');
 const saltRounds = 10;
+const Booking = require("./models/Booking")
 dotenv.config();
 
 const app = express();
@@ -253,9 +254,10 @@ app.get("/getPlace/:id", async(req, res) => {
   }
 })
 
-app.post("/booking", async(req, res) => {
+app.post("/booking", (req, res) => {
   const { token } = req.cookies;
-  const {placeId, checkIn, checkOut, maxGuests, price, email, phone} = req.body.bookingData;
+  // console.log(req.body.bookingData)
+  const {placeId, checkInDate, checkOutDate, maxGuests, price, phone} = req.body.bookingData;
 
   if (token) {
     jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async(err, user) => {
@@ -264,10 +266,10 @@ app.post("/booking", async(req, res) => {
       } else {
         const newBooking = new Booking({
           guest: user.userID, email: user.email,
-          placeId, checkIn, checkOut, maxGuests, price, phone
+          placeId, checkIn: checkInDate, checkOut: checkOutDate, maxGuests, price, phone
         })
         newBooking.save();
-        res.json(newBooking);
+        res.status(200).json(newBooking);
       }
     });
   }  

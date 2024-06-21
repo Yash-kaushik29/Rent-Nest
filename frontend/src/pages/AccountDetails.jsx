@@ -28,7 +28,7 @@ const AccountDetails = () => {
   // Function to add conditional classes for navigation links
   const addClasses = (category) => {
     let classes =
-      "flex items-center gap-1 text-lg md:text-xl font-semibold text-gray-700 px-10 py-1 rounded-full my-1";
+      "flex items-center gap-1 text-base lg:text-xl font-semibold text-gray-700 px-10 py-1 rounded-full my-1";
 
     if (category === subCategory) {
       classes += " bg-orange-500 text-white underline";
@@ -122,7 +122,7 @@ const AccountDetails = () => {
             </Link>
           </div>
 
-          <div className="max-w-md sm:max-w-xl md:max-w-2xl bg-orange-500 h-[1px] mt-8 mx-auto"></div>
+          <div className="max-w-md sm:max-w-xl md:max-w-2xl bg-orange-500 h-[1px] mt-4 lg:mt-8 mx-auto"></div>
 
           <div>
             {subCategory === "profile" && (
