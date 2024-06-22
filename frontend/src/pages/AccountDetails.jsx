@@ -6,6 +6,7 @@ import UserDetails from "../components/UserDetails";
 import axios from "axios";
 import { enqueueSnackbar } from "notistack";
 import Accomodation from "./Accomodation";
+import MyBookings from "./MyBookings";
 
 const AccountDetails = () => {
   const { user, setUser, ready } = useContext(UserContext);
@@ -62,7 +63,7 @@ const AccountDetails = () => {
         </div>
       ) : (
         <div>
-          <div className="flex flex-col sm:flex-row mt-5 sm:mt-12 max-w-xl justify-between items-center mx-auto">
+          <div className="flex flex-col sm:flex-row mt-5 sm:mt-6 max-w-xl justify-between items-center mx-auto">
             <Link to={"/account"}>
               <div className={addClasses("profile")}>
                 <svg
@@ -129,6 +130,7 @@ const AccountDetails = () => {
               <UserDetails user={user} logout={logout} />
             )}
             {subCategory === "my-accomodations" && <Accomodation />}
+            {subCategory === "bookings" && <MyBookings />}
           </div>
         </div>
       )}

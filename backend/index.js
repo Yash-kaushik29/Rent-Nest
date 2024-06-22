@@ -36,7 +36,7 @@ app.use(
   cors({
     credentials: true,
     origin: process.env.FRONTEND_URL,
-    methods: ["POST", "PUT", "GET"],
+    methods: ["POST", "PUT", "GET", "DELETE"],
   })
 );
 
@@ -256,7 +256,7 @@ app.get("/getPlace/:id", async(req, res) => {
 
 app.post("/booking", (req, res) => {
   const { token } = req.cookies;
-  // console.log(req.body.bookingData)
+
   const {placeId, checkInDate, checkOutDate, maxGuests, price, phone} = req.body.bookingData;
 
   if (token) {
@@ -273,6 +273,34 @@ app.post("/booking", (req, res) => {
       }
     });
   }  
+})
+
+app.get("/getBookings", (req, res) => {
+  const {token} = req.cookies;
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async(err, user) => {
+    if (err) {
+      throw err;
+    } else {
+      try {
+        const bookings = await Booking.find({guest: user.userID});
+        res.status(200).send(bookings)
+      } catch (error) {
+        res.status(500).json({error: 'Error retrieving bookings'});
+      }
+    }
+  });
+})
+
+app.delete("/deleteBooking/:id", async(req, res) => {
+  const {id} = req.params;
+
+  try {
+    await Booking.deleteOne({_id: id});
+    res.status(200).json("Success");
+  } catch(error) {
+    res.status(501).json("Internal Server Error")
+  }
 })
 
 app.listen(process.env.PORT, () => {
