@@ -9,6 +9,7 @@ import AccountDetails from "./pages/AccountDetails";
 import Header from "./components/Header";
 import Form from "./components/Form";
 import PlacePage from  './pages/PlacePage';
+import SingleBookingPage from "./pages/SingleBookingPage";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/account/my-accomodations/new" element={<Form />}></Route>
         <Route path="/account/my-accomodations/:id" element={<Form />} ></Route>
         <Route path="/place/:id" element={<PlacePage />} ></Route>
+        <Route path="/account/bookings/:id" element={<SingleBookingPage />}></Route>
       </Routes>
     </UserContextProvider>
   );

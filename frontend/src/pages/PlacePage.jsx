@@ -61,11 +61,11 @@ const PlacePage = () => {
 
   if(showImages) {
     return (
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mx-5">
+      <div className="grid sm:grid-cols-2 gap-4 mt-4 mx-5">
         <button className="fixed top-[90px] right-8 bg-red-600 text-white font bold px-4 py-2 rounded-full" onClick={() => setShowImages(false)}>X Close</button>
         {placeData?.images?.length > 0 && placeData.images.map(image => (
           <div key={image}>
-            <img src={`http://localhost:5000/uploads/${image}`} alt="Image" className="rounded-xl w-full h-full" />
+            <img src={`http://localhost:5000/uploads/${image}`} alt="Image" className="rounded-xl w-full h-full sm:h-[50vh] lg:h-[60vh]" />
           </div>
         ))}
       </div>

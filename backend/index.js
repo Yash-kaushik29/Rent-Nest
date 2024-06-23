@@ -236,8 +236,8 @@ app.get("/getAccomodation/:id", async(req, res) => {
 
 app.get("/getPlaces", async(req, res) => {
   try {
-    const data = await Accomodation.find();
-  res.json(data);
+    const data = await Accomodation.find({});
+    res.json(data);
   } catch(error) {
     console.log(error);
   }
@@ -301,6 +301,24 @@ app.delete("/deleteBooking/:id", async(req, res) => {
   } catch(error) {
     res.status(501).json("Internal Server Error")
   }
+})
+
+app.get("/getBooking/:id", (req, res) => {
+  const {id} = req.params;
+  const {token} = req.cookies;
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async(err, user) => {
+    if (err) {
+      throw err;
+    } else {
+      try {
+        const booking = await Booking.find({_id: id});
+        res.status(200).send(booking)
+      } catch (error) {
+        res.status(500).json({error: 'Error retrieving booking'});
+      }
+    }
+  });
 })
 
 app.listen(process.env.PORT, () => {
