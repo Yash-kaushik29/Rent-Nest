@@ -10,7 +10,7 @@ const Accomodation = () => {
 
   useEffect(() => {
     const fetchAccomodations = async() => {
-        const {data} = await axios.get("http://localhost:5000/getAccomodations", {withCredentials: true});
+        const {data} = await axios.get("/getAccomodations", {withCredentials: true});
         setAccomodations(data);
     }
 

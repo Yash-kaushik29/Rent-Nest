@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { MdOutlineDelete } from "react-icons/md";
 import { IoStar, IoStarOutline } from "react-icons/io5";
+import Image from "./Image";
 
 const PhotosUploader = ({ images, setImages }) => {
   const [imageURL, setImageURL] = useState("");
@@ -10,7 +11,7 @@ const PhotosUploader = ({ images, setImages }) => {
     e.preventDefault();
 
     const { data: filename } = await axios.post(
-      "http://localhost:5000/save-image",
+      "/save-image",
       { url: imageURL },
       { withCredentials: true }
     );
@@ -29,7 +30,7 @@ const PhotosUploader = ({ images, setImages }) => {
     }
 
     const { data: filenames } = await axios.post(
-      "http://localhost:5000/upload",
+      "/upload",
       filedata,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -89,8 +90,8 @@ const PhotosUploader = ({ images, setImages }) => {
                   <IoStar />:
                   <IoStarOutline /> }
                 </div>
-                <img
-                  src={"http://localhost:5000/uploads/" + image}
+                <Image
+                  src={image}
                   alt="Uploaded"
                   className="w-full h-32 object-cover rounded-lg shadow-sm"
                 />

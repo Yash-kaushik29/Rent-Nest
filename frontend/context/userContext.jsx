@@ -10,7 +10,7 @@ export function UserContextProvider({ children }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/getUser", { withCredentials: true });
+        const response = await axios.get("/getUser", { withCredentials: true });
         setUser(response.data);
         setReady(true);
       } catch (error) {

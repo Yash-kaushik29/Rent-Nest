@@ -10,6 +10,9 @@ import Header from "./components/Header";
 import Form from "./components/Form";
 import PlacePage from  './pages/PlacePage';
 import SingleBookingPage from "./pages/SingleBookingPage";
+import axios from "axios";
+
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
 
 const App = () => {
   return (

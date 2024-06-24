@@ -22,7 +22,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/register",
+        "/register",
         { username, email, password },
         { withCredentials: true }
       );

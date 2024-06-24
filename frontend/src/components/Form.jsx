@@ -20,7 +20,7 @@ const Form = () => {
 
   useState(() => {
     const fetchDetails = async() => {
-      const {data} = await axios.get(`http://localhost:5000/getAccomodation/${id}`);
+      const {data} = await axios.get(`/getAccomodation/${id}`);
       setTitle(data.title);
       setAddress(data.address);
       setDescription(data.description);
@@ -43,10 +43,10 @@ const Form = () => {
 
     if(id) {
       const placeData = {id, title, address, description, images, perks, extraInfo, checkIn, checkOut, price, maxGuests};
-      await axios.put("http://localhost:5000/updatePlace", {placeData}, {withCredentials: true});  
+      await axios.put("/updatePlace", {placeData}, {withCredentials: true});  
     } else {
       const placeData = {title, address, description, images, perks, extraInfo, checkIn, checkOut, price, maxGuests};
-      await axios.post("http://localhost:5000/savePlace", {placeData}, {withCredentials: true});
+      await axios.post("/savePlace", {placeData}, {withCredentials: true});
     }
 
     navigate("/account/my-accomodations");

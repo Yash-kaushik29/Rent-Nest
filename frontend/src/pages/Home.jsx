@@ -2,13 +2,14 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Carousel from "../components/Carousel";
+import Image from "../components/Image";
 
 const Home = () => {
   const [places, setPlaces] = useState([]);
 
   useEffect(() => {
     const fetchPopularPlaces = async () => {
-      const { data } = await axios.get("http://localhost:5000/getPlaces");
+      const { data } = await axios.get("/getPlaces");
       setPlaces(data);
     };
 
@@ -26,8 +27,8 @@ const Home = () => {
             <Link key={place._id} to={`/place/${place._id}`}>
               <div className="relative pb-4 rounded-lg">
                 <div className="h-64 overflow-hidden rounded-lg bg-gray-200 shadow-lg shadow-gray-400">
-                  <img
-                    src={`http://localhost:5000/uploads/${place?.images[0]}`}
+                  <Image
+                    src={place?.images[0]}
                     alt={place?.title || "Place image"}
                     className="object-cover h-full w-full hover:scale-110"
                   />

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import PlaceGallery from "../components/PlaceGallery";
 import {differenceInCalendarDays} from "date-fns";
 import { enqueueSnackbar } from "notistack";
+import Image from "../components/Image";
 
 const PlacePage = () => {
   const [placeData, setPlaceData] = useState([]);
@@ -18,7 +19,7 @@ const PlacePage = () => {
 
   useEffect(() => {
     const fetchPlace = async () => {
-      const { data } = await axios.get(`http://localhost:5000/getPlace/${id}`);
+      const { data } = await axios.get(`/getPlace/${id}`);
       setPlaceData(data);
     };
 
@@ -51,7 +52,7 @@ const PlacePage = () => {
     const price = days * placeData.price;
     const bookingData = {placeId: id, checkInDate, checkOutDate, maxGuests, price, phone};
 
-    await axios.post("http://localhost:5000/booking", {bookingData: bookingData}, {withCredentials: true});
+    await axios.post("/booking", {bookingData: bookingData}, {withCredentials: true});
     enqueueSnackbar("Booking Successfull", {
       autoHideDuration: 3000,
       variant: "success", 
@@ -65,7 +66,7 @@ const PlacePage = () => {
         <button className="fixed top-[90px] right-8 bg-red-600 text-white font bold px-4 py-2 rounded-full" onClick={() => setShowImages(false)}>X Close</button>
         {placeData?.images?.length > 0 && placeData.images.map(image => (
           <div key={image}>
-            <img src={`http://localhost:5000/uploads/${image}`} alt="Image" className="rounded-xl w-full h-full sm:h-[50vh] lg:h-[60vh]" />
+            <Image src={image} alt="Image" className="rounded-xl w-full h-full sm:h-[50vh] lg:h-[60vh]" />
           </div>
         ))}
       </div>

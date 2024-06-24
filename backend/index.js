@@ -10,7 +10,9 @@ const Accomodation = require("./models/Accomodation")
 const cookieParser = require("cookie-parser");
 const download = require('image-downloader');
 const multer = require('multer');
+const {S3Client, PutObjectCommand} = require("@aws-sdk/client-s3");
 const fs = require('fs');
+const mime = require('mime-types');
 const saltRounds = 10;
 const Booking = require("./models/Booking")
 dotenv.config();
@@ -21,17 +23,6 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(__dirname + '/uploads'));
 
-mongoose
-  .connect(process.env.MONGODB_URI_KEY, {
-    dbName: "RENTREST",
-  })
-  .then(() => {
-    console.log("Database connected".blue.bold);
-  })
-  .catch((err) => {
-    console.log(err.red);
-  });
-
 app.use(
   cors({
     credentials: true,
@@ -41,8 +32,42 @@ app.use(
 );
 
 const salt = bcrypt.genSaltSync(saltRounds);
+const bucket = 'yash-booking-app';
 
-app.post("/register", async (req, res) => {
+async function uploadToS3(path, originalFilename, mimetype) {
+  const client = new S3Client({
+    region: "ap-southeast-2",
+    credentials: {
+      accessKeyId: process.env.S3_ACCESS_KEY,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY
+    },
+  });
+
+  const parts = originalFilename.split('.');
+  const ext = parts[parts.length - 1];
+  const newFileName = Date.now() + '.' + ext;
+  await client.send(new PutObjectCommand({
+    Bucket: bucket,
+    Body: fs.readFileSync(path),
+    Key: newFileName,
+    ContentType: mimetype,
+    ACL: 'public-read'
+  }))
+
+  return `http://${bucket}.s3.amazonaws.com/${newFileName}`;
+}
+
+app.post("/api/register", async (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   try {
     const { username, email, password } = req.body;
 
@@ -69,7 +94,17 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
@@ -101,7 +136,17 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/getUser", (req, res) => {
+app.get("/api/getUser", (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const { token } = req.cookies;
 
   if (token) {
@@ -118,42 +163,81 @@ app.get("/getUser", (req, res) => {
   }
 });
 
-app.post("/logout", async(req, res) => {
+app.post("/api/logout", async(req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   res.cookie("token", "").json({});
 })
 
-app.post("/save-image", async(req, res) => {
+app.post("/api/save-image", async(req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const {url} = req.body;
   const newName = "image" + Date.now() + ".jpg";
 
   await download.image({
     url: url, 
-    dest: __dirname + '/uploads/' + newName,
+    dest: '/tmp/' + newName,
   });
 
-  res.json(newName)
+  const link = await uploadToS3('/tmp/' + newName, newName, mime.lookup('/tmp/' + newName));
+
+  res.json(link)
 })
 
-const photosMiddleware = multer({ dest: "uploads/" });
+const photosMiddleware = multer({ dest: "/tmp" });
 
-app.post("/upload", photosMiddleware.array('photos', 50), (req, res) => {
+app.post("/api/upload", photosMiddleware.array('photos', 100), async(req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const uploadedFiles = [];
   const files = req.files;
 
   for(let i=0; i<files.length; i++) {
-    const {path, originalname} = files[i];
-    const parts = originalname.split('.');
-    const ext = parts[parts.length-1];
-
-    const newPath = path + '.' + ext;
-    fs.renameSync(path, newPath);
-    uploadedFiles.push(newPath.replace("uploads\\", ''));
+    const {path, originalname, mimetype} = files[i];
+    const url = await uploadToS3(path, originalname, mimetype);
+    uploadedFiles.push(url);
+    console.log(url)
   }
 
   res.json(uploadedFiles);
 });
 
-app.post("/savePlace", (req, res) => {
+app.post("/api/savePlace", (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const { token } = req.cookies;
   const {title, address, description, images, perks, extraInfo, checkIn, checkOut, price, maxGuests} = req.body.placeData;
 
@@ -173,7 +257,17 @@ app.post("/savePlace", (req, res) => {
   }  
 });
 
-app.put("/updatePlace", (req, res) => {
+app.put("/api/updatePlace", (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const { token } = req.cookies;
   const {id, title, address, description, images, perks, extraInfo, checkIn, checkOut, price, maxGuests} = req.body.placeData;
 
@@ -206,7 +300,17 @@ app.put("/updatePlace", (req, res) => {
   }  
 });
 
-app.get("/getAccomodations", (req, res) => {
+app.get("/api/getAccomodations", (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const { token } = req.cookies;
 
   if (token) {
@@ -227,14 +331,34 @@ app.get("/getAccomodations", (req, res) => {
   }
 });
 
-app.get("/getAccomodation/:id", async(req, res) => {
+app.get("/api/getAccomodation/:id", async(req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const {id} = req.params;
 
   const accomodation = await Accomodation.findOne({_id: id});
   res.json(accomodation);
 });
 
-app.get("/getPlaces", async(req, res) => {
+app.get("/api/getPlaces", async(req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   try {
     const data = await Accomodation.find({});
     res.json(data);
@@ -243,7 +367,17 @@ app.get("/getPlaces", async(req, res) => {
   }
 });
 
-app.get("/getPlace/:id", async(req, res) => {
+app.get("/api/getPlace/:id", async(req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const {id} = req.params;
 
   try {
@@ -254,7 +388,17 @@ app.get("/getPlace/:id", async(req, res) => {
   }
 })
 
-app.post("/booking", (req, res) => {
+app.post("/api/booking", (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const { token } = req.cookies;
 
   const {placeId, checkInDate, checkOutDate, maxGuests, price, phone} = req.body.bookingData;
@@ -275,7 +419,17 @@ app.post("/booking", (req, res) => {
   }  
 })
 
-app.get("/getBookings", (req, res) => {
+app.get("/api/getBookings", (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const {token} = req.cookies;
 
   jwt.verify(token, process.env.JWT_SECRET_KEY, {}, async(err, user) => {
@@ -292,7 +446,17 @@ app.get("/getBookings", (req, res) => {
   });
 })
 
-app.delete("/deleteBooking/:id", async(req, res) => {
+app.delete("/api/deleteBooking/:id", async(req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const {id} = req.params;
 
   try {
@@ -303,7 +467,17 @@ app.delete("/deleteBooking/:id", async(req, res) => {
   }
 })
 
-app.get("/getBooking/:id", (req, res) => {
+app.get("/api/getBooking/:id", (req, res) => {
+  mongoose
+  .connect(process.env.MONGODB_URI_KEY, {
+    dbName: "RENTNEST",
+  })
+  .then(() => {
+    console.log("Database connected".blue.bold);
+  })
+  .catch((err) => {
+    console.log(err.red);
+  });
   const {id} = req.params;
   const {token} = req.cookies;
 
@@ -319,7 +493,7 @@ app.get("/getBooking/:id", (req, res) => {
       }
     }
   });
-})
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`.white);

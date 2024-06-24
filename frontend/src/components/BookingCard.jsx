@@ -3,15 +3,17 @@ import { enqueueSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
+import Image from "./Image";
 
 const BookingCard = ({ booking, fetchBookings }) => {
   const [place, setPlace] = useState([]);
   const { placeId, checkIn, checkOut, maxGuests, price, phone } = booking;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPlaceData = async () => {
       const { data } = await axios.get(
-        `http://localhost:5000/getPlace/${placeId}`
+        `/getPlace/${placeId}`
       );
       setPlace(data);
     };
@@ -26,12 +28,13 @@ const BookingCard = ({ booking, fetchBookings }) => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/deleteBooking/${bookingId}`);
+      await axios.delete(`/deleteBooking/${bookingId}`);
       fetchBookings();
       enqueueSnackbar("Booking Cancelled !", {
         autoHideDuration: 3000,
         variant: "success",
       });
+      navigate("/account/bookings");
     } catch (error) {
       console.error("Error deleting booking:", error);
       enqueueSnackbar("Failed to Cancel Booking", {
@@ -45,8 +48,8 @@ const BookingCard = ({ booking, fetchBookings }) => {
     <Link to={`/account/bookings/${booking._id}`}>
       <div className="grid grid-cols-1 xs:grid-cols-[2fr_3fr] md:grid-cols-[2fr_3fr] gap-x-4 mt-5 mx-3 sm:mx-6 md:mx-12 border rounded-xl shadow-lg shadow-gray-300">
         <div>
-          <img
-            src={`http://localhost:5000/uploads/${place?.images?.[0]}`}
+          <Image
+            src={place?.images?.[0]}
             className="w-full h-auto xs:h-[175px] object-cover rounded-l-xl"
           />
         </div>

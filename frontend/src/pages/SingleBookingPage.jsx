@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import PlaceGallery from "../components/PlaceGallery";
 import { MdDelete } from "react-icons/md";
 import { enqueueSnackbar } from "notistack";
+import Image from "../components/Image";
 
 const SingleBookingPage = () => {
   const { id } = useParams();
@@ -14,7 +15,7 @@ const SingleBookingPage = () => {
 
   const fetchPlaceData = async (placeId) => {
     const { data } = await axios.get(
-      `http://localhost:5000/getPlace/${placeId}`
+      `/getPlace/${placeId}`
     );
     setPlace(data);
   };
@@ -22,7 +23,7 @@ const SingleBookingPage = () => {
   useEffect(() => {
     const fetchBooking = async () => {
       const { data } = await axios.get(
-        `http://localhost:5000/getBooking/${id}`,
+        `/getBooking/${id}`,
         { withCredentials: true }
       );
       setBooking(data[0]);
@@ -41,7 +42,7 @@ const SingleBookingPage = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/deleteBooking/${bookingId}`);
+      await axios.delete(`/deleteBooking/${bookingId}`);
       enqueueSnackbar("Booking Cancelled !", {
         autoHideDuration: 3000,
         variant: "success",
@@ -62,7 +63,7 @@ const SingleBookingPage = () => {
         <button className="fixed top-[90px] right-8 bg-red-600 text-white font bold px-4 py-2 rounded-full" onClick={() => setShowImages(false)}>X Close</button>
         {place?.images?.length > 0 && place.images.map(image => (
           <div key={image}>
-            <img src={`http://localhost:5000/uploads/${image}`} alt="Image" className="rounded-xl w-full h-full sm:h-[50vh] lg:h-[60vh]" />
+            <Image src={image} alt="Image" className="rounded-xl w-full h-full sm:h-[50vh] lg:h-[60vh]" />
           </div>
         ))}
       </div>

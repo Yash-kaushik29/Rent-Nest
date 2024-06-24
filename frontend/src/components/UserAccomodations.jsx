@@ -8,6 +8,7 @@ import {
 } from "@material-tailwind/react";
 import { Link } from 'react-router-dom';
 import { MdModeEdit } from "react-icons/md";
+import Image from './Image';
 
 const UserAccomodations = ({accomodation}) => {
   return (
@@ -17,8 +18,8 @@ const UserAccomodations = ({accomodation}) => {
     floated={false}
     className="m-0 shrink-0 rounded-r-none"
   >
-    <img
-      src={`http://localhost:5000/uploads/${accomodation.images[0]}`}
+    <Image
+      src={accomodation.images[0]}
       alt="card-image"
       className="h-48 w-48 object-cover rounded-md"
     />

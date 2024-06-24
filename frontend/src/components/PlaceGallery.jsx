@@ -1,5 +1,6 @@
 import React from 'react'
 import { GrGallery } from "react-icons/gr";
+import Image from './Image';
 
 const PlaceGallery = ({placeData, setShowImages}) => {
   return (
@@ -7,8 +8,8 @@ const PlaceGallery = ({placeData, setShowImages}) => {
     <div className="basis-2/3">
       {placeData.images?.[0] && (
         <div className="h-full">
-          <img
-            src={`http://localhost:5000/uploads/${placeData.images[0]}`}
+          <Image
+            src={placeData.images[0]}
             className="h-full w-full object-cover rounded-l-lg"
           />
         </div>
@@ -17,16 +18,16 @@ const PlaceGallery = ({placeData, setShowImages}) => {
     <div className="basis-1/3 grid gap-2 relative">
       {placeData.images?.[1] && (
         <div className="h-full">
-          <img
-            src={`http://localhost:5000/uploads/${placeData.images[1]}`}
+          <Image
+            src={placeData.images[1]}
             className="h-full w-full object-cover rounded-tr-lg"
           />
         </div>
       )}
       {placeData.images?.[2] && (
         <div className="h-full relative">
-          <img
-            src={`http://localhost:5000/uploads/${placeData.images[2]}`}
+          <Image
+            src={placeData.images[2]}
             className="h-full w-full object-cover rounded-br-lg"
           />
           <button className="flex items-center absolute right-2 bottom-2 text-white bg-orange-500 px-2 py-1 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm md:text-base lg:text-lg" onClick={() => setShowImages(true)}>

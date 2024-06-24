@@ -8,7 +8,7 @@ const MyBookings = () => {
   const [bookings, setbookings] = useState([]);
 
   const fetchBookings = async () => {
-    const { data } = await axios.get("http://localhost:5000/getBookings", {
+    const { data } = await axios.get("/getBookings", {
       withCredentials: true,
     });
     setbookings(data);
