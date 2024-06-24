@@ -26,7 +26,7 @@ app.use("/uploads", express.static(__dirname + '/uploads'));
 app.use(
   cors({
     credentials: true,
-    origin: process.env.FRONTEND_URL,
+    origin: "http://localhost:5173",
     methods: ["POST", "PUT", "GET", "DELETE"],
   })
 );
@@ -495,6 +495,6 @@ app.get("/api/getBooking/:id", (req, res) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
+app.listen(5000, () => {
   console.log(`Server running on port ${process.env.PORT}`.white);
 });
