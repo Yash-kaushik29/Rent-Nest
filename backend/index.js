@@ -23,13 +23,20 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(__dirname + '/uploads'));
 
-app.use(
-  cors({
-    credentials: true,
-    origin: ["https://rent-nest-ruby.vercel.app","http://localhost:5173"],
-    methods: ["POST", "PUT", "GET", "DELETE"],
-  })
-);
+const allowedOrigins = ['https://rent-nest-mfyj6wz21-yash-kaushiks-projects.vercel.app'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
 
 const salt = bcrypt.genSaltSync(saltRounds);
 const bucket = 'yash-booking-app';
